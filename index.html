@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>San-Fierro News — Там, где молчат стены</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Montserrat:wght@200;300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #050505;
+            --bg-secondary: #0d0d0d;
+            --bg-card: #141414;
+            --text-primary: #f0ede8;
+            --text-secondary: #8a8580;
+            --red: #c41e3a;
+            --red-dark: #8b0000;
+            --red-glow: rgba(196, 30, 58, 0.4);
+            --red-light: #e63950;
+            --border: rgba(196, 30, 58, 0.3);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 300;
+            overflow-x: hidden;
+            line-height: 1.8;
+        }
+
+        /* === KATANA SLASH EFFECT === */
+        .slash-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .slash {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--red), transparent);
+            opacity: 0;
+            box-shadow: 0 0 15px var(--red-glow);
+        }
+
+        .slash.active {
+            animation: slashAnim 0.5s ease-out forwards;
+        }
+
+        @keyframes slashAnim {
+            0% {
+                width: 0;
+                opacity: 0.8;
+            }
+            100% {
+                width: 100vw;
+                opacity: 0;
+            }
+        }
+
+        /* === ANIMATED BACKGROUND === */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.02;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 50px, var(--red) 50px, var(--red) 51px),
+                repeating-linear-gradient(-45deg, transparent, transparent 50px, var(--red) 50px, var(--red) 51px);
+            pointer-events: none;
+            z-index: 0;
+            animation: patternMove 30s linear infinite;
+        }
+
+        @keyframes patternMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* === FLOATING PARTICLES === */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--red);
+            border-radius: 50%;
+            opacity: 0;
+            animation: float linear infinite;
+            box-shadow: 0 0 8px var(--red-glow);
+        }
+
+        .particle:nth-child(3n) {
+            background: var(--red-light);
+            width: 3px;
+            height: 3px;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.4; }
+            100% {
+                transform: translateY(-10vh) translateX(100px);
+                opacity: 0;
+            }
+        }
+
+        /* === HERO === */
+        .hero {
+            position: relative;
+            height: 95vh;
+            min-height: 700px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('img/3.jpg') center/cover no-repeat;
+            filter: brightness(0.35) contrast(1.2) saturate(0.6);
+            animation: slowZoom 35s ease-in-out infinite alternate;
+        }
+
+        @keyframes slowZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.15); }
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(180deg, rgba(5, 5, 5, 0.2) 0%, rgba(5, 5, 5, 0.5) 60%, rgba(5, 5, 5, 0.95) 100%),
+                linear-gradient(90deg, rgba(196, 30, 58, 0.06) 0%, transparent 50%, rgba(196, 30, 58, 0.04) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 1000px;
+            padding: 0 40px;
+        }
+
+        .hero-tag {
+            display: inline-block;
+            font-size: 0.8em;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: var(--red);
+            margin-bottom: 40px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+            position: relative;
+            padding: 0 30px;
+        }
+
+        .hero-tag::before,
+        .hero-tag::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 50px;
+            height: 1px;
+            background: var(--red);
+            box-shadow: 0 0 10px var(--red-glow);
+        }
+
+        .hero-tag::before { left: -60px; }
+        .hero-tag::after { right: -60px; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 6em;
+            font-weight: 300;
+            line-height: 1;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+            letter-spacing: 5px;
+            opacity: 0;
+            animation: titleReveal 1.8s ease-out 0.8s forwards;
+        }
+
+        @keyframes titleReveal {
+            from {
+                opacity: 0;
+                transform: translateY(60px);
+                letter-spacing: 25px;
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                letter-spacing: 5px;
+            }
+        }
+
+        .hero-title em {
+            font-style: italic;
+            color: var(--red);
+            font-weight: 500;
+            display: block;
+            font-size: 0.45em;
+            margin-top: 15px;
+            letter-spacing: 10px;
+            text-shadow: 0 0 40px var(--red-glow);
+        }
+
+        .hero-subtitle {
+            font-size: 1.15em;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-weight: 300;
+            max-width: 700px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.3s forwards;
+        }
+
+        /* === BYLINE === */
+        .byline {
+            padding: 40px 80px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 60px;
+            font-size: 0.85em;
+            position: relative;
+            z-index: 10;
+            background: rgba(5, 5, 5, 0.95);
+            backdrop-filter: blur(15px);
+        }
+
+        .byline-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: center;
+        }
+
+        .byline-label {
+            font-size: 0.65em;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .byline-value {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15em;
+            color: var(--text-primary);
+            font-weight: 400;
+        }
+
+        .byline-value.accent {
+            color: var(--red);
+            font-weight: 500;
+        }
+
+        .byline-sep {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(to bottom, transparent, var(--red), transparent);
+        }
+
+        /* === ARTICLE === */
+        .article {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 120px 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .article p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.35em;
+            line-height: 1.9;
+            margin-bottom: 35px;
+            color: var(--text-primary);
+            font-weight: 400;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s ease-out;
+        }
+
+        .article p.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .article p:first-of-type::first-letter {
+            font-size: 5.5em;
+            float: left;
+            line-height: 0.8;
+            margin-right: 15px;
+            margin-top: 10px;
+            color: var(--red);
+            font-weight: 600;
+            text-shadow: 0 0 20px var(--red-glow);
+        }
+
+        .article p em {
+            color: var(--red-light);
+            font-style: italic;
+        }
+
+        .article h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.2em;
+            font-weight: 300;
+            margin: 120px 0 50px;
+            color: var(--text-primary);
+            letter-spacing: 3px;
+            position: relative;
+            padding-top: 40px;
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 1s ease-out;
+        }
+
+        .article h2.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .article h2::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--red), transparent);
+            box-shadow: 0 0 15px var(--red-glow);
+            animation: lineGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes lineGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .article h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.2em;
+            font-weight: 400;
+            font-style: italic;
+            margin: 70px 0 30px;
+            color: var(--red-light);
+            opacity: 0;
+            transition: all 1s ease-out;
+        }
+
+        .article h3.visible {
+            opacity: 1;
+        }
+
+        /* === IMAGES === */
+        .img-block {
+            margin: 90px 0;
+            opacity: 0;
+            transform: translateY(60px) scale(0.95);
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .img-block.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .img-frame {
+            position: relative;
+            overflow: hidden;
+            background: var(--bg-card);
+            cursor: pointer;
+            border: 1px solid var(--border);
+        }
+
+        .img-frame::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 1px solid rgba(196, 30, 58, 0.4);
+            z-index: 2;
+            pointer-events: none;
+            transition: all 0.8s ease-out;
+        }
+
+        .img-frame:hover::before {
+            top: 30px;
+            left: 30px;
+            right: 30px;
+            bottom: 30px;
+            border-color: rgba(196, 30, 58, 0.8);
+            box-shadow: 0 0 30px var(--red-glow);
+        }
+
+        .img-frame img {
+            width: 100%;
+            display: block;
+            transition: transform 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            filter: brightness(0.9) contrast(1.1);
+        }
+
+        .img-frame:hover img {
+            transform: scale(1.05);
+            filter: brightness(1) contrast(1.15);
+        }
+
+        .img-frame::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(196, 30, 58, 0.15),
+                transparent
+            );
+            transition: left 0.8s ease-out;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .img-frame:hover::after {
+            left: 100%;
+        }
+
+        .img-caption {
+            margin-top: 25px;
+            padding-left: 25px;
+            border-left: 3px solid var(--red);
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 1s ease-out 0.3s;
+        }
+
+        .img-block.visible .img-caption {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .img-caption .cap-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05em;
+            font-style: italic;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        /* === FULL WIDTH IMAGE === */
+        .img-full {
+            margin: 100px -40px;
+            max-width: calc(100% + 80px);
+        }
+
+        /* === IMAGE GRID (2 in a row) === */
+        .img-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 90px 0;
+        }
+
+        .img-grid .img-block {
+            margin: 0;
+        }
+
+        .img-grid .img-frame img {
+            height: 520px;
+            object-fit: cover;
+        }
+
+        /* === SECTION DIVIDER === */
+        .section-div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin: 120px 0;
+        }
+
+        .section-div .line {
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--red), transparent);
+            animation: linePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes linePulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        .section-div .diamond {
+            width: 12px;
+            height: 12px;
+            background: var(--red);
+            transform: rotate(45deg);
+            animation: diamondPulse 3s ease-in-out infinite;
+            box-shadow: 0 0 20px var(--red-glow);
+        }
+
+        @keyframes diamondPulse {
+            0%, 100% { opacity: 1; transform: rotate(45deg) scale(1); }
+            50% { opacity: 0.5; transform: rotate(45deg) scale(1.4); }
+        }
+
+        /* === Q&A SECTION === */
+        .qa-section {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 40px 60px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .qa-section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5em;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+            letter-spacing: 5px;
+            position: relative;
+        }
+
+        .qa-intro {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3em;
+            font-style: italic;
+            text-align: center;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 80px;
+            line-height: 1.7;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 1s ease-out;
+        }
+
+        .qa-intro.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .qa-item {
+            margin-bottom: 80px;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .qa-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .qa-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 8em;
+            font-weight: 300;
+            color: var(--red);
+            opacity: 0.2;
+            line-height: 1;
+            margin-bottom: -30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .qa-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+            position: relative;
+            z-index: 2;
+        }
+
+        .qa-question {
+            padding: 30px;
+            background: var(--bg-card);
+            position: relative;
+            border: none;
+            border-left: none;
+        }
+
+        .qa-question::before {
+            content: 'P';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5em;
+            color: var(--red-light);
+            opacity: 0.3;
+            font-weight: 700;
+        }
+
+        .qa-question p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3em;
+            line-height: 1.6;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 0;
+            opacity: 1;
+            transform: none;
+        }
+
+        .qa-answer {
+            padding: 30px;
+            background: var(--bg-card);
+            position: relative;
+            border: none;
+            border-left: none;
+        }
+
+        .qa-answer::before {
+            content: 'I';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5em;
+            color: var(--red);
+            opacity: 0.3;
+            font-weight: 700;
+        }
+
+        .qa-answer p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4em;
+            line-height: 1.6;
+            color: var(--red);
+            font-weight: 400;
+            font-style: italic;
+            margin-bottom: 0;
+            opacity: 1;
+            transform: none;
+        }
+
+        .qa-image {
+            margin-top: 40px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border);
+        }
+
+        .qa-image img {
+            width: 100%;
+            display: block;
+            transition: transform 1.5s ease-out;
+            filter: brightness(0.9) contrast(1.1);
+        }
+
+        .qa-image:hover img {
+            transform: scale(1.03);
+            filter: brightness(1) contrast(1.15);
+        }
+
+        .qa-image::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(196, 30, 58, 0.1), transparent);
+            transition: left 0.8s ease-out;
+            pointer-events: none;
+        }
+
+        .qa-image:hover::after {
+            left: 100%;
+        }
+
+        /* === THANKS SECTION === */
+        .thanks-section {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 40px 120px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .thanks-divider {
+            width: 60px;
+            height: 1px;
+            background: var(--red);
+            margin: 0 auto 50px;
+            box-shadow: 0 0 15px var(--red-glow);
+        }
+
+        .thanks-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4em;
+            font-style: italic;
+            line-height: 1.8;
+            color: var(--text-primary);
+            margin-bottom: 30px;
+        }
+
+        .thanks-signature {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2em;
+            color: var(--red);
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .thanks-role {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* === QUOTE === */
+        .pull-quote {
+            margin: 120px 0;
+            padding: 70px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 1.2s ease-out;
+        }
+
+        .pull-quote.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .pull-quote::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 60px;
+            height: 2px;
+            background: var(--red);
+            transform: translateY(-50%);
+            box-shadow: 0 0 15px var(--red-glow);
+        }
+
+        .pull-quote blockquote {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5em;
+            font-weight: 300;
+            font-style: italic;
+            line-height: 1.5;
+            color: var(--text-primary);
+            padding-left: 80px;
+            margin-bottom: 30px;
+        }
+
+        .pull-quote cite {
+            display: block;
+            padding-left: 80px;
+            font-size: 0.85em;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--red);
+            font-style: normal;
+            font-weight: 500;
+        }
+
+        /* === FOOTER === */
+        .site-footer {
+            border-top: 1px solid var(--border);
+            padding: 80px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            background: rgba(5, 5, 5, 0.95);
+        }
+
+        .footer-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            margin-bottom: 30px;
+        }
+
+        .footer-logo span {
+            color: var(--red);
+            font-weight: 500;
+        }
+
+        .footer-info {
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            line-height: 2.5;
+            letter-spacing: 1px;
+        }
+
+        .footer-info strong {
+            color: var(--red);
+            font-weight: 500;
+        }
+
+        /* === SCROLL PROGRESS === */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 3px;
+            background: var(--red);
+            z-index: 1000;
+            transition: width 0.1s;
+            box-shadow: 0 0 10px var(--red-glow);
+        }
+
+        /* === LOADING === */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 35px;
+            transition: opacity 1.5s, visibility 1.5s;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2em;
+            letter-spacing: 15px;
+            text-transform: uppercase;
+            color: var(--text-primary);
+            animation: loaderPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes loaderPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        .loader-bar {
+            width: 180px;
+            height: 2px;
+            background: rgba(196, 30, 58, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loader-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            background: var(--red);
+            animation: loaderFill 2.5s ease-out forwards;
+            box-shadow: 0 0 15px var(--red-glow);
+        }
+
+        @keyframes loaderFill {
+            to { width: 100%; }
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 3.5em; }
+            .hero-content { padding: 0 30px; }
+            .byline { padding: 30px; flex-wrap: wrap; gap: 30px; }
+            .article { padding: 80px 25px; }
+            .img-full { margin: 70px -25px; max-width: calc(100% + 50px); }
+            .img-grid { grid-template-columns: 1fr; }
+            .img-grid .img-frame img { height: auto; }
+            .qa-content { grid-template-columns: 1fr; }
+            .qa-section { padding: 40px 25px 60px; }
+            .pull-quote blockquote, .pull-quote cite { padding-left: 30px; }
+            .pull-quote::before { display: none; }
+            .site-footer { padding: 50px 30px; }
+            .thanks-section { padding: 60px 25px 80px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-text">San-Fierro News</div>
+        <div class="loader-bar"></div>
+    </div>
+
+    <!-- Scroll Progress -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Slash Container -->
+    <div class="slash-container" id="slashContainer"></div>
+
+    <!-- Background Pattern -->
+    <div class="bg-pattern"></div>
+
+    <!-- Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-tag">Saint Louis · 7 октября 2026</div>
+            <h1 class="hero-title">
+                Там, где молчат стены
+                <em>Репортаж из дома Якудзы</em>
+            </h1>
+            <p class="hero-subtitle">Меня пригласили за стол, за который не сажают журналистов. Я согласился — и увидел то, о чём обычно только слышат.</p>
+        </div>
+    </section>
+
+    <!-- Byline -->
+    <div class="byline reveal">
+        <div class="byline-item">
+            <span class="byline-label">Редакция</span>
+            <span class="byline-value">San-Fierro News</span>
+        </div>
+        <div class="byline-sep"></div>
+        <div class="byline-item">
+            <span class="byline-label">Автор</span>
+            <span class="byline-value accent">Purosangue Sao</span>
+        </div>
+        <div class="byline-sep"></div>
+        <div class="byline-item">
+            <span class="byline-label">Фотографии</span>
+            <span class="byline-value">Anna Malboro</span>
+        </div>
+    </div>
+
+    <!-- Article -->
+    <article class="article">
+
+        <p>Приглашение пришло без предупреждения. Никаких звонков, никаких писем — только короткое сообщение от человека, чьё имя я слышал десятки раз, но никогда не видел в печати. «Сегодня. Вечер. Ресторан у набережной. Приходите один». Подпись — Isaac Kleiner. Кумитэ клана Якудза.</p>
+
+        <p>Я знал, кто он. Знает весь San-Fierro — по слухам, по намёкам, по историям, которые рассказывают шёпотом. Но увидеть его лично, сесть за один стол, услышать голос — это было совсем другое. Я взял диктофон, блокнот и поехал.</p>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <h2>Ресторан</h2>
+
+        <p>Он сидел у окна, спиной к залу. Чёрный костюм, спокойное лицо, руки на столе — ладонями вниз, как человек, которому нечего скрывать и нечего демонстрировать. Мы говорили около часа. О традициях. О кодексе. О том, как клан живёт в современном городе. Он отвечал ровно, без пауз, без уклонений — так, будто давно решил, что именно можно сказать вслух.</p>
+
+        <p>А потом он отодвинул чашку, посмотрел на меня и произнёс фразу, которую я не ожидал услышать: «Поедем ко мне. Посмотрите, где мы живём».</p>
+
+        <p>Я не стал переспрашивать. Встал, оставил на столе деньги за свой кофе — он, разумеется, не позволил заплатить за себя — и вышел следом. У подъезда уже стоял чёрный лимузин. Водитель открыл заднюю дверь молча.</p>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <h2>Дорога</h2>
+
+        <p>Двадцать минут молчания. Kleiner смотрел в телефон, я — в окно, пытаясь запомнить маршрут. Инстинкт журналиста: зафиксировать путь, чтобы потом восстановить. Но маршрут был построен так, чтобы его невозможно было запомнить. Промышленные кварталы, съезд с шоссе, грунтовая дорога между холмами. Никаких знаков. Никаких ориентиров.</p>
+
+        <p>Ворота открылись сами. Высокие, тёмные, они просто разошлись в стороны, пропуская машину внутрь. За ними — территория, которую не видно с дороги. Пальмы, стена, тишина. Я вышел и впервые за вечер почувствовал, что воздух здесь другой. Плотнее. Тише.</p>
+
+        <div class="img-grid">
+            <div class="img-block">
+                <div class="img-frame">
+                    <img src="img/4.jpg" alt="Фасад особняка"
+                         onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='520px'">
+                </div>
+                <div class="img-caption">
+                    <div class="cap-text">Фасад резиденции. Большая покатая крыша, панорамные окна первого этажа, балкон над центральным входом. Три автомобиля у входа. Сдержанная архитектура без показной роскоши.</div>
+                </div>
+            </div>
+            <div class="img-block">
+                <div class="img-frame">
+                    <img src="img/2.jpg" alt="Территория особняка"
+                         onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='520px'">
+                </div>
+                <div class="img-caption">
+                    <div class="cap-text">Парковка резиденции. Чёрные автомобили выстроены в идеальную линию. Два вертолёта на площадках по краям. Пальмы и холм на горизонте.</div>
+                </div>
+            </div>
+        </div>
+
+        <p>Дом выглядел спокойным. Большая покатая крыша, панорамные окна первого этажа, центральная часть с треугольным фронтоном. Никаких колонн, никаких львов у входа, никаких намёков на богатство. Только уверенность — такая, которую не нужно демонстрировать.</p>
+
+        <p>Парковка поразила больше, чем сам дом. Десятки машин — все чёрные, все одной марки, все под одним углом. Два вертолёта на площадках. Ни одного случайного предмета, ни одного лишнего движения. Порядок здесь не наводится — он здесь живёт.</p>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <h2>Внутри</h2>
+
+        <p>Двери открылись без звука. Не скрипнули, не щёлкнули — просто разошлись. И всё, что я видел снаружи, оказалось лишь оболочкой. Настоящий дом начинался здесь.</p>
+
+        <p>Двухуровневый атриум вздымался надо мной. Балкон второго этажа нависал над пространством, японские перегородки сёдзи делили его на зоны, не разрушая целостности. Тёмное дерево пола, приглушённый свет сверху — всё дышало спокойствием силы.</p>
+
+        <div class="img-block img-full">
+            <div class="img-frame">
+                <img src="img/3.jpg" alt="Атриум особняка"
+                     onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='650px'">
+            </div>
+            <div class="img-caption">
+                <div class="cap-text">Центральный атриум. Двухуровневое пространство с балконом. Японские перегородки, орнаментальные перила. Слева — татами-комната с красными подушками, справа — современная гостиная с оранжевыми креслами. Золотой орнамент на стене второго этажа.</div>
+            </div>
+        </div>
+
+        <p>С балкона открывался вид на весь первый уровень. Слева — традиционная комната с татами и низкими столиками, справа — гостиная с оранжевыми креслами. Древняя Япония и современный San-Fierro существовали здесь одновременно, не конфликтуя.</p>
+
+        <div class="img-block">
+            <div class="img-frame">
+                <img src="img/5.jpg" alt="Главный зал"
+                     onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='600px'">
+            </div>
+            <div class="img-caption">
+                <div class="cap-text">Главный зал. Символ инь-ян в центре пола, световые панели по периметру. Колонна с орнаментом, картина в раме, фиолетовая мебель. Потолок с геометрическим рисунком и матовым освещением.</div>
+            </div>
+        </div>
+
+        <p>Главный зал поразил больше всего. В центре пола — инь-ян, будто вписанный в сам фундамент. Вокруг — световые панели, создающие эффект парящего пространства. Массивная колонна с орнаментом, картина в тяжёлой раме, живые растения. Здесь не принимают гостей. Здесь принимают решения.</p>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <h2>Кабинет</h2>
+
+        <p>На втором этаже — кабинет Kleiner. Просторная комната, где деловая зона плавно переходит в переговорную. Чёрный стол с iMac, кожаное кресло, красный алтарь в углу. Декоративная решётка на стене отбрасывает на пол узор, который меняется вместе с солнцем.</p>
+
+        <div class="img-grid">
+            <div class="img-block">
+                <div class="img-frame">
+                    <img src="img/6.jpg" alt="Кабинет Isaac Kleiner"
+                         onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='520px'">
+                </div>
+                <div class="img-caption">
+                    <div class="cap-text">Кабинет кумитэ. Чёрный стол с компьютером, кожаные кресла, красный алтарь в углу. Декоративная решётка на стене. Зона переговоров с диванами и журнальным столиком.</div>
+                </div>
+            </div>
+            <div class="img-block">
+                <div class="img-frame">
+                    <img src="img/8.jpg" alt="Рабочий стол"
+                         onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='520px'">
+                </div>
+                <div class="img-caption">
+                    <div class="cap-text">Рабочий стол крупным планом. Компьютер iMac, камера на полке, рамки с фотографиями. Красный алтарь на заднем плане.</div>
+                </div>
+            </div>
+        </div>
+
+        <p>На полке рядом со столом — старая плёночная камера. Рамки с фотографиями. Ноутбук. Личные вещи среди строгой обстановки. Этот человек не прячет жизнь за фасадом власти — он просто не показывает её тем, кому не нужно видеть.</p>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <h2>Комнаты</h2>
+
+        <p>Татами-комната — сердце дома. Круглый деревянный стол с бонсаи в центре, красные подушки для сидения, стена с изображением бамбука. Здесь нет стульев, нет высоких столов, нет ничего, что возвышает одного над другим. Все равны перед этим столом — и хозяин, и гость.</p>
+
+        <div class="img-grid">
+            <div class="img-block">
+                <div class="img-frame">
+                    <img src="img/7.jpg" alt="Татами-комната"
+                         onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='520px'">
+                </div>
+                <div class="img-caption">
+                    <div class="cap-text">Татами-комната. Круглый стол с бонсаи в центре, красные подушки, бамбук на стене. Традиционное пространство для встреч и церемоний.</div>
+                </div>
+            </div>
+            <div class="img-block">
+                <div class="img-frame">
+                    <img src="img/9.jpg" alt="Обеденная комната"
+                         onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='520px'">
+                </div>
+                <div class="img-caption">
+                    <div class="cap-text">Обеденная комната. Длинный стол с высокими стульями, красные сиденья. Вид на атриум через раздвижные перегородки. Цветочные обои на стенах.</div>
+                </div>
+            </div>
+        </div>
+
+        <p>Обеденная комната — длинный тёмный стол, высокие стулья с красными сиденьями, вид на атриум через раздвижные перегородки. Здесь собираются все. Здесь едят, говорят, молчат. Стены покрыты обоями с цветочным узором — неожиданно нежно для дома, который ассоциируется с силой.</p>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <h2>Кухня</h2>
+
+        <p>Профессиональная кухня на нижнем уровне. Чёрно-белая плитка, стальное оборудование, кастрюли и сковороды, подвешенные над рабочими поверхностями. Здесь готовят для всего клана — не для одного человека, не для гостей, а для семьи. Повар, которого я мельком увидел, работал молча, как и все в этом доме.</p>
+
+        <div class="img-block img-full">
+            <div class="img-frame">
+                <img src="img/10.jpg" alt="Кухня особняка"
+                     onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='600px'">
+            </div>
+            <div class="img-caption">
+                <div class="cap-text">Профессиональная кухня. Черно-белая плитка, stainless steel оборудование, подвешенные кастрюли и сковороды. Всё для приготовления еды для клана.</div>
+            </div>
+        </div>
+
+        <div class="pull-quote reveal">
+            <blockquote>Здесь каждый камень помнит тех, кто был до нас, и каждый угол хранит верность, которую мы не нарушим.</blockquote>
+            <cite>— Isaac Kleiner</cite>
+        </div>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <h2>Хозяин</h2>
+
+        <p>Мы вернулись в гостиную. Kleiner сидел на большом оранжевом диване — том самом, что я видел, входя в дом. В руках он держал катану. Не демонстрировал, не размахивал — просто держал, как человек держит телефон или чашку. Это была часть его, продолжение руки.</p>
+
+        <div class="img-block">
+            <div class="img-frame">
+                <img src="img/1.jpg" alt="Isaac Kleiner"
+                     onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='600px'">
+            </div>
+            <div class="img-caption">
+                <div class="cap-text">Isaac Kleiner в гостиной резиденции. Оранжевый угловой диван, катана в руках, ноутбук на столике. Картина с пейзажем на стене за спиной.</div>
+            </div>
+        </div>
+
+        <p>Рядом на столике — открытый ноутбук. Дела не ждут, даже когда ты показываешь журналисту свой дом. Он говорил мало, но каждое слово было взвешенным. О кодексе. О семье. О том, что традиции — это не музейный экспонат, а способ жить сегодня.</p>
+
+        <p>Я провёл в этом доме четыре часа. Увидел больше, чем рассчитывал. Услышал больше, чем надеялся. Покидая особняк, я обернулся у ворот — здание стояло тихое, почти незаметное среди пальм. Но теперь я знал: за этими стенами живёт целый мир.</p>
+
+    </article>
+
+    <!-- Q&A Section -->
+    <div class="qa-section">
+        <h2 class="qa-section-title">Пять вопросов кумитэ</h2>
+        <p class="qa-intro">В конце визита я задал Kleiner пять коротких вопросов. Он отвечал не задумывая — так, как говорят только те, кто давно знает ответы.</p>
+
+        <!-- Q1 -->
+        <div class="qa-item">
+            <div class="qa-number">01</div>
+            <div class="qa-content">
+                <div class="qa-question">
+                    <p>Какой предмет лучше всего хранит суть ваших традиций?</p>
+                </div>
+                <div class="qa-answer">
+                    <p>Катана. Потому что хранит суть наших традиций.</p>
+                </div>
+            </div>
+            <div class="qa-image">
+                <img src="img/11.jpg" alt="Isaac Kleiner с катаной"
+                     onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='500px'">
+            </div>
+        </div>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="qa-item">
+            <div class="qa-number">02</div>
+            <div class="qa-content">
+                <div class="qa-question">
+                    <p>Как вы понимаете, кто для вас близкий человек, а кто нет?</p>
+                </div>
+                <div class="qa-answer">
+                    <p>Близкий не тот с кем делишь кровь. Близкий тот кому ты можешь повернуться спиной и за ней не съедят суши...</p>
+                </div>
+            </div>
+            <div class="qa-image">
+                <img src="img/12.jpg" alt="Isaac Kleiner"
+                     onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='500px'">
+            </div>
+        </div>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="qa-item">
+            <div class="qa-number">03</div>
+            <div class="qa-content">
+                <div class="qa-question">
+                    <p>Какие качества вы больше всего цените в членах своего клана?</p>
+                </div>
+                <div class="qa-answer">
+                    <p>Качества? Молчание. Точность. Готовность.</p>
+                </div>
+            </div>
+            <div class="qa-image">
+                <img src="img/13.jpg" alt="Isaac Kleiner"
+                     onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='500px'">
+            </div>
+        </div>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="qa-item">
+            <div class="qa-number">04</div>
+            <div class="qa-content">
+                <div class="qa-question">
+                    <p>Что для вас значит «честь» в сегодняшние времена?</p>
+                </div>
+                <div class="qa-answer">
+                    <p>Честь это долг который не отдают вслух...</p>
+                </div>
+            </div>
+            <div class="qa-image">
+                <img src="img/14.jpg" alt="Isaac Kleiner"
+                     onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='500px'">
+            </div>
+        </div>
+
+        <div class="section-div">
+            <div class="line"></div>
+            <div class="diamond"></div>
+            <div class="line"></div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="qa-item">
+            <div class="qa-number">05</div>
+            <div class="qa-content">
+                <div class="qa-question">
+                    <p>Какой ритуал объяснил бы всё о вашем доме без слов?</p>
+                </div>
+                <div class="qa-answer">
+                    <p>Харакири...</p>
+                </div>
+            </div>
+            <div class="qa-image">
+                <img src="img/15.jpg" alt="Isaac Kleiner"
+                     onerror="this.style.background='linear-gradient(135deg,#141414,#1a1a1a)'; this.style.height='500px'">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Thanks Section -->
+    <div class="thanks-section">
+        <div class="thanks-divider"></div>
+        <p class="thanks-text">
+            Выражаю искреннюю благодарность Isaac Kleiner за оказанное доверие и приглашение в дом клана. 
+            Подобные визиты — редкость, и я понимаю ценность того, что мне было позволено увидеть. 
+            Этот материал опубликован с уважением к хозяину и его традициям.
+        </p>
+        <div class="thanks-signature">Purosangue Sao</div>
+        <div class="thanks-role">Программный директор · San-Fierro News</div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-logo">San-Fierro <span>News</span></div>
+        <div class="footer-info">
+            Редакция: <strong>San-Fierro News</strong><br>
+            Редактор: <strong>Purosangue Sao</strong> &nbsp;·&nbsp; Фото: <strong>Anna Malboro</strong><br>
+            Штат Saint Louis &nbsp;·&nbsp; 7 октября 2026<br>
+            © 2026 San-Fierro News
+        </div>
+    </footer>
+
+    <script>
+        // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 2500);
+        });
+
+        // Scroll Progress
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / docHeight) * 100;
+            document.getElementById('scrollProgress').style.width = progress + '%';
+        });
+
+        // Katana Slash Effect
+        let lastScroll = 0;
+
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.scrollY;
+            const diff = Math.abs(currentScroll - lastScroll);
+
+            if (diff > 100) {
+                createSlash();
+            }
+
+            lastScroll = currentScroll;
+        });
+
+        function createSlash() {
+            const container = document.getElementById('slashContainer');
+            const slash = document.createElement('div');
+            slash.className = 'slash active';
+            slash.style.top = Math.random() * 100 + '%';
+            container.appendChild(slash);
+
+            setTimeout(() => slash.remove(), 500);
+        }
+
+        // Floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const count = 50;
+
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDuration = (Math.random() * 18 + 12) + 's';
+                particle.style.animationDelay = (Math.random() * 12) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        createParticles();
+
+        // Scroll reveal
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.img-block, .qa-item, .pull-quote, .qa-intro, .article h2, .article h3, .article p, .reveal').forEach(el => observer.observe(el));
+
+        // Parallax hero
+        window.addEventListener('scroll', () => {
+            const hero = document.querySelector('.hero-bg');
+            if (hero) {
+                const y = window.scrollY;
+                hero.style.transform = `translateY(${y * 0.3}px) scale(${1 + y * 0.0002})`;
+            }
+        });
+
+        // Random slash on page load
+        setTimeout(() => {
+            createSlash();
+        }, 3000);
+    </script>
+
+</body>
+</html>
